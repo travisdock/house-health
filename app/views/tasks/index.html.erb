@@ -1,14 +1,16 @@
 <turbo-frame id="modal">
-  <div class="fixed inset-0 bg-black/40 z-40"></div>
-  <div class="fixed inset-x-0 bottom-0 top-4 z-50 bg-white rounded-t-2xl shadow-2xl overflow-y-auto sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:max-w-lg sm:top-12 sm:bottom-12 sm:rounded-2xl">
-    <%# Header with back button, room score, and room name %>
+  <dialog data-controller="dialog"
+          data-action="click->dialog#clickOutside"
+          aria-labelledby="modal-title"
+          class="p-0 m-auto w-full max-w-lg shadow-2xl backdrop:bg-black/40 overflow-y-auto rounded-2xl max-h-[80vh]">
+    <%# Header with close button, room score, and room name %>
     <div class="sticky top-0 bg-emerald-700 text-white px-4 py-3 rounded-t-2xl sm:rounded-t-2xl">
       <div class="flex items-center justify-between">
-        <a href="<%= root_path %>" data-turbo-frame="modal" class="p-1 hover:opacity-80">
+        <button data-action="dialog#close" class="p-1 hover:opacity-80" aria-label="Close">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
-        </a>
+        </button>
         <span class="font-medium">House Health Tracker</span>
         <div class="flex items-center gap-2">
           <div class="w-3 h-3 rounded-full" style="background-color: <%= score_color(@room.score) %>"></div>
@@ -19,7 +21,7 @@
 
     <%# Room name subheader %>
     <div class="px-5 py-3 border-b bg-gray-50 text-center">
-      <h2 class="text-lg font-bold text-gray-800"><%= @room.name %></h2>
+      <h2 id="modal-title" class="text-lg font-bold text-gray-800"><%= @room.name %></h2>
     </div>
 
     <%# Task list %>
@@ -47,5 +49,5 @@
         </div>
       <% end %>
     </div>
-  </div>
+  </dialog>
 </turbo-frame>
