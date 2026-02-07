@@ -190,6 +190,8 @@ This is the most test-heavy phase since the scoring logic is the core of the app
 
 ### 5C: System Tests for Turbo Stream Integration
 
+**Note:** Uncomment the `system-test` job in `.github/workflows/ci.yml` when adding these tests.
+
 **File: `test/system/turbo_streams_test.rb`**
 
 - `test "completing a task updates scores on the same page"` — visit /, complete a task, verify the score changes without full page reload

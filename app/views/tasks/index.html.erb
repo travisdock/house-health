@@ -1,0 +1,56 @@
+<turbo-frame id="modal">
+  <dialog data-controller="dialog"
+          data-action="click->dialog#clickOutside"
+          aria-labelledby="modal-title"
+          class="p-0 m-auto w-full max-w-lg shadow-2xl backdrop:bg-black/40 overflow-y-auto rounded-2xl max-h-[80vh]">
+    <% room_score = @room.score %>
+    <%# Header with close button, room score, and room name %>
+    <div class="sticky top-0 bg-emerald-700 text-white px-4 py-3 rounded-t-2xl sm:rounded-t-2xl">
+      <div class="flex items-center justify-between">
+        <button data-action="dialog#close" class="p-1 hover:opacity-80" aria-label="Close">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <span class="font-medium">House Health Tracker</span>
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full" style="background-color: <%= score_color(room_score) %>"></div>
+          <span class="font-bold"><%= room_score || "--" %></span>
+        </div>
+      </div>
+    </div>
+
+    <%# Room name subheader %>
+    <div class="px-5 py-3 border-b bg-gray-50 text-center">
+      <h2 id="modal-title" class="text-lg font-bold text-gray-800"><%= @room.name %></h2>
+    </div>
+
+    <%# Task list %>
+    <div class="p-4 space-y-2">
+      <% if @tasks.any? %>
+        <% @tasks.each do |task| %>
+          <% task_score = task.health_score %>
+          <% task_color = score_color(task_score) %>
+          <div class="flex items-center justify-between gap-4 bg-white rounded-xl p-4 shadow-sm">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-medium text-gray-800 truncate"><%= task.name %></span>
+              <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: <%= task_color %>"></div>
+              <span class="text-sm font-semibold flex-shrink-0" style="color: <%= task_color %>"><%= task_score %></span>
+            </div>
+            <%= form_with url: task_completions_path(task), method: :post, class: "flex-shrink-0 ml-auto" do |f| %>
+              <%= f.submit "Done",
+                  class: "bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-emerald-800 active:scale-95 transition-transform cursor-pointer min-h-[44px]",
+                  data: { turbo_submits_with: "..." } %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-8">
+          <p class="text-gray-500 mb-4">No tasks in this room yet</p>
+          <%= link_to "Add your first task", new_room_task_path(@room),
+              class: "text-blue-600 font-medium hover:underline" %>
+        </div>
+      <% end %>
+    </div>
+  </dialog>
+</turbo-frame>

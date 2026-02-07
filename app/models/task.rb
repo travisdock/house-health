@@ -18,14 +18,21 @@ class Task < ApplicationRecord
     end
   end
 
+  def reload(*)
+    @health_score = nil
+    super
+  end
+
   def health_score
-    completed_at = last_completed_at
-    return 0 if completed_at.nil?
+    @health_score ||= begin
+      completed_at = last_completed_at
+      return 0 if completed_at.nil?
 
-    hours_elapsed = (Time.current - completed_at) / 1.hour
-    decay_period_hours = decay_period_days * 24.0
-    k = -Math.log(SCORE_AT_ONE_PERIOD) / decay_period_hours
+      hours_elapsed = (Time.current - completed_at) / 1.hour
+      decay_period_hours = decay_period_days * 24.0
+      k = -Math.log(SCORE_AT_ONE_PERIOD) / decay_period_hours
 
-    (100.0 * Math.exp(-k * hours_elapsed)).round.clamp(0, 100)
+      (100.0 * Math.exp(-k * hours_elapsed)).round.clamp(0, 100)
+    end
   end
 end

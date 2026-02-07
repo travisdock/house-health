@@ -34,4 +34,26 @@ class ScoreColorHelperTest < ActionView::TestCase
   test "score above 100 is clamped to green" do
     assert_equal "hsl(120, 70%, 45%)", score_color(150)
   end
+
+  # score_color_light
+
+  test "light: score of 100 returns hue 140" do
+    assert_equal "hsl(140, 80%, 55%)", score_color_light(100)
+  end
+
+  test "light: score of 0 returns hue 20" do
+    assert_equal "hsl(20, 80%, 55%)", score_color_light(0)
+  end
+
+  test "light: nil score returns hue 20" do
+    assert_equal "hsl(20, 80%, 55%)", score_color_light(nil)
+  end
+
+  test "light: score of 50 returns hue 80" do
+    assert_equal "hsl(80, 80%, 55%)", score_color_light(50)
+  end
+
+  test "light: score above 100 is clamped" do
+    assert_equal "hsl(140, 80%, 55%)", score_color_light(150)
+  end
 end

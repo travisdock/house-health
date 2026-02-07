@@ -1,0 +1,12 @@
+<%# Phase 5: wired to broadcasts_refreshes on Completion model for cross-device updates %>
+<%= turbo_stream_from :house_scores %>
+<% content_for :head do %>
+  <meta http-equiv="refresh" content="3600">
+<% end %>
+
+<div class="text-center py-12">
+  <div class="text-sm font-medium text-gray-400 uppercase tracking-wide">House Score</div>
+  <div class="text-8xl font-bold mt-2" style="color: <%= score_color(@house_score) %>">
+    <%= @house_score || "--" %>
+  </div>
+</div>
