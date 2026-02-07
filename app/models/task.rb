@@ -8,6 +8,8 @@ class Task < ApplicationRecord
   validates :name, presence: true
   validates :decay_period_days, presence: true, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 730 }
 
+  # Callers computing scores across multiple tasks should eager-load
+  # completions (e.g. includes(tasks: :completions)) to avoid N+1 queries.
   def last_completed_at
     if completions.loaded?
       completions.map(&:created_at).max
