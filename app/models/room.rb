@@ -3,6 +3,8 @@ class Room < ApplicationRecord
 
   validates :name, presence: true
 
+  broadcasts_refreshes_to ->(_room) { :house_scores }
+
   def self.house_score(rooms = nil)
     rooms ||= includes(tasks: :completions)
     scores = rooms.filter_map(&:score)

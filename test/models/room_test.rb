@@ -1,6 +1,9 @@
 require "test_helper"
+require "turbo/broadcastable/test_helper"
 
 class RoomTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+  include Turbo::Broadcastable::TestHelper
   # Phase 1A: Model Validations & Associations
 
   test "room requires a name" do
@@ -102,6 +105,16 @@ class RoomTest < ActiveSupport::TestCase
     room.tasks.create!(name: "Task 2", decay_period_days: 1)
 
     assert_equal 0, room.score
+  end
+
+  # Phase 5A: Broadcast Configuration
+
+  test "room broadcasts_refreshes is configured" do
+    assert_turbo_stream_broadcasts(:house_scores) do
+      perform_enqueued_jobs do
+        Room.create!(name: "Broadcast Test Room")
+      end
+    end
   end
 
   # Phase 1E: House Scoring (Room.house_score class method)
