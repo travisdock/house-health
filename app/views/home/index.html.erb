@@ -4,7 +4,7 @@
   <% if @rooms.any? %>
     <%# House score with gradient background %>
     <div class="rounded-2xl p-6 mb-6 text-center text-white"
-         style="background: linear-gradient(135deg, <%= score_color(@house_score) %>, hsl(<%= ((@house_score || 0) * 1.2).clamp(0, 120) + 20 %>, 80%, 55%));">
+         style="background: linear-gradient(135deg, <%= score_color(@house_score) %>, <%= score_color_light(@house_score) %>);">
       <div class="text-7xl font-bold"><%= @house_score || "--" %></div>
     </div>
 

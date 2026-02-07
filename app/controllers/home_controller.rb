@@ -1,11 +1,14 @@
 class HomeController < ApplicationController
-  def index
-    @rooms = Room.includes(tasks: :completions).sort_by { |r| r.score || -1 }
-    @house_score = Room.house_score
-  end
+  before_action :load_rooms_and_score
 
-  def dashboard
+  def index; end
+  def dashboard; end
+
+  private
+
+  def load_rooms_and_score
     @rooms = Room.includes(tasks: :completions).sort_by { |r| r.score || -1 }
-    @house_score = Room.house_score
+    scores = @rooms.filter_map(&:score)
+    @house_score = scores.empty? ? nil : (scores.sum.to_f / scores.size).round
   end
 end
