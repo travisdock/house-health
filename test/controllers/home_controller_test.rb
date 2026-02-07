@@ -21,20 +21,18 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     travel_to Time.current do
       get root_path
 
-      kitchen = rooms(:kitchen)
-      bathroom = rooms(:bathroom)
-      bedroom = rooms(:bedroom)
+      kitchen_pos = response.body.index(rooms(:kitchen).name)
+      bathroom_pos = response.body.index(rooms(:bathroom).name)
+      bedroom_pos = response.body.index(rooms(:bedroom).name)
 
-      kitchen_pos = response.body.index(kitchen.name)
-      bathroom_pos = response.body.index(bathroom.name)
-      bedroom_pos = response.body.index(bedroom.name)
-
-      # bedroom has no tasks (nil score), bathroom has one task (clean_toilet, never completed = 0),
-      # kitchen has tasks with varying scores.
-      # Rooms with nil scores (no tasks) should still appear.
-      # Rooms with lower scores should appear first.
-      assert_not_nil kitchen_pos
-      assert_not_nil bathroom_pos
+      # bedroom: no tasks (nil score, sorts as -1) → first
+      # bathroom: clean_toilet never completed (score 0) → second
+      # kitchen: average of wipe_counters (~97) and mop_floor (~36) → last
+      assert_not_nil bedroom_pos, "Bedroom should appear in response"
+      assert_not_nil bathroom_pos, "Bathroom should appear in response"
+      assert_not_nil kitchen_pos, "Kitchen should appear in response"
+      assert bedroom_pos < bathroom_pos, "Bedroom (nil score) should appear before Bathroom (score 0)"
+      assert bathroom_pos < kitchen_pos, "Bathroom (score 0) should appear before Kitchen (score ~66)"
     end
   end
 

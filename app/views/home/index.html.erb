@@ -11,24 +11,26 @@
     <%# Room list %>
     <div class="space-y-3">
       <% @rooms.each do |room| %>
+        <% room_score = room.score %>
+        <% room_color = score_color(room_score) %>
         <a href="<%= room_tasks_path(room) %>"
            data-turbo-frame="modal"
            class="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow border-b-4"
-           style="border-bottom-color: <%= score_color(room.score) %>;">
+           style="border-bottom-color: <%= room_color %>;">
           <span class="font-semibold text-gray-800 text-lg"><%= room.name %></span>
           <%# Circular progress indicator %>
           <div class="relative w-12 h-12 flex-shrink-0">
             <svg viewBox="0 0 36 36" class="w-12 h-12 -rotate-90">
               <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e5e7eb" stroke-width="3" />
               <circle cx="18" cy="18" r="15.5" fill="none"
-                      stroke="<%= score_color(room.score) %>"
+                      stroke="<%= room_color %>"
                       stroke-width="3"
-                      stroke-dasharray="<%= (room.score || 0) * 0.9742 %> 97.42"
+                      stroke-dasharray="<%= (room_score || 0) * 0.9742 %> 97.42"
                       stroke-linecap="round" />
             </svg>
             <span class="absolute inset-0 flex items-center justify-center text-xs font-bold"
-                  style="color: <%= score_color(room.score) %>">
-              <%= room.score || "--" %>
+                  style="color: <%= room_color %>">
+              <%= room_score || "--" %>
             </span>
           </div>
         </a>
