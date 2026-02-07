@@ -39,10 +39,9 @@
     <div class="text-center py-12">
       <h2 class="text-xl font-semibold text-gray-700 mb-2">No rooms yet</h2>
       <p class="text-gray-500 mb-6">Add your first room to start tracking</p>
-      <%= form_with url: rooms_path, class: "max-w-xs mx-auto flex gap-2" do |f| %>
+      <%= form_with model: Room.new, class: "max-w-xs mx-auto flex gap-2" do |f| %>
         <%= f.text_field :name, placeholder: "Room name", required: true,
-            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500",
-            name: "room[name]" %>
+            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
         <%= f.submit "Add", class: "bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 cursor-pointer" %>
       <% end %>
     </div>
