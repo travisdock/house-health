@@ -86,6 +86,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     room.tasks.each do |task|
       assert_match task.name, response.body
+      assert_match task.health_score.to_s, response.body
     end
     assert_select "input[type=submit][value='Done'], button[type=submit]"
   end
