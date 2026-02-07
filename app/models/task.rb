@@ -5,6 +5,8 @@ class Task < ApplicationRecord
   belongs_to :room
   has_many :completions, dependent: :destroy
 
+  broadcasts_refreshes_to ->(_task) { :house_scores }
+
   validates :name, presence: true
   validates :decay_period_days, presence: true, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 730 }
 
