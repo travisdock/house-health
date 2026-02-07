@@ -1,0 +1,37 @@
+require "test_helper"
+
+class ScoreColorHelperTest < ActionView::TestCase
+  # Phase 1C: Score Color Helper (Continuous HSL Gradient)
+
+  test "score of 100 returns green hue (120)" do
+    assert_equal "hsl(120, 70%, 45%)", score_color(100)
+  end
+
+  test "score of 0 returns red hue (0)" do
+    assert_equal "hsl(0, 70%, 45%)", score_color(0)
+  end
+
+  test "score of 50 returns yellow hue (60)" do
+    assert_equal "hsl(60, 70%, 45%)", score_color(50)
+  end
+
+  test "score of 75 returns yellow-green hue (90)" do
+    assert_equal "hsl(90, 70%, 45%)", score_color(75)
+  end
+
+  test "score of 25 returns orange hue (30)" do
+    assert_equal "hsl(30, 70%, 45%)", score_color(25)
+  end
+
+  test "nil score returns red" do
+    assert_equal "hsl(0, 70%, 45%)", score_color(nil)
+  end
+
+  test "negative score returns red" do
+    assert_equal "hsl(0, 70%, 45%)", score_color(-10)
+  end
+
+  test "score above 100 is clamped to green" do
+    assert_equal "hsl(120, 70%, 45%)", score_color(150)
+  end
+end
