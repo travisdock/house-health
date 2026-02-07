@@ -1,15 +1,19 @@
 module ScoreColorHelper
   def score_color(score)
-    return "hsl(0, 70%, 45%)" if score.nil? || score <= 0
-
-    hue = (score * 1.2).round.clamp(0, 120)
+    hue = score_hue(score)
     "hsl(#{hue}, 70%, 45%)"
   end
 
   def score_color_light(score)
-    return "hsl(20, 80%, 55%)" if score.nil? || score <= 0
-
-    hue = (score * 1.2).round.clamp(0, 120) + 20
+    hue = score_hue(score) + 20
     "hsl(#{hue}, 80%, 55%)"
+  end
+
+  private
+
+  def score_hue(score)
+    return 0 if score.nil? || score <= 0
+
+    (score * 1.2).round.clamp(0, 120)
   end
 end

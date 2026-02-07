@@ -10,9 +10,16 @@ class Room < ApplicationRecord
     (scores.sum.to_f / scores.size).round
   end
 
-  def score
-    return nil if tasks.empty?
+  def reload(*)
+    @score = nil
+    super
+  end
 
-    (tasks.sum(&:health_score).to_f / tasks.size).round
+  def score
+    @score ||= begin
+      return nil if tasks.empty?
+
+      (tasks.sum(&:health_score).to_f / tasks.size).round
+    end
   end
 end

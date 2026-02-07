@@ -43,9 +43,11 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/add/i, response.body)
   end
 
-  test "GET /dashboard returns success" do
+  test "GET /dashboard returns success and displays house score" do
     get dashboard_path
     assert_response :success
+    assert_select ".text-8xl"
+    assert_match(/House Score/i, response.body)
   end
 
   # Phase 3B: Room Task List (Mobile)
