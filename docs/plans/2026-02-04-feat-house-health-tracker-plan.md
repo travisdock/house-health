@@ -193,7 +193,7 @@ Set up the Rails 8 app and core data model with scoring logic.
 - [ ] Generate models: `Room`, `Task`, `Completion`
   - `app/models/room.rb` — `has_many :tasks, dependent: :destroy`
   - `app/models/task.rb` — `belongs_to :room`, `has_many :completions, dependent: :destroy`
-  - `app/models/completion.rb` — `belongs_to :task`, `broadcasts_refreshes`
+  - `app/models/completion.rb` — `belongs_to :task`
 - [ ] Create migrations with proper indexes
   - `db/migrate/xxx_create_rooms.rb` — name (string)
   - `db/migrate/xxx_create_tasks.rb` — room_id (references), name (string), decay_period_days (integer); index on `room_id`
@@ -305,6 +305,7 @@ Build the always-on display for the kitchen screen. Uses the same `HomeControlle
 
 #### Phase 5: Polish
 
+- [ ] Add `broadcasts_refreshes` to `Completion` model
 - [ ] Ensure broadcasts work correctly
   - Completing a task updates both mobile and kiosk views instantly
   - Adding/editing/deleting rooms or tasks triggers refresh on both views
