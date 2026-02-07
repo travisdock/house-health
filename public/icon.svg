@@ -1,3 +1,32 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded background -->
+  <rect width="512" height="512" rx="100" ry="100" fill="white"/>
+  <!-- House shape with gradient -->
+  <path d="
+    M256 80
+    L448 230
+    L448 432 Q448 452 428 452
+    L84 452 Q64 452 64 432
+    L64 230 Z
+  " fill="url(#g)"/>
+  <!-- Chimney -->
+  <rect x="360" y="120" width="40" height="90" rx="4" fill="url(#g)"/>
+  <!-- Heart cutout -->
+  <path d="
+    M256 400
+    C160 310 140 260 180 220
+    C200 200 230 200 256 230
+    C282 200 312 200 332 220
+    C372 260 352 310 256 400
+    Z
+  " fill="white"/>
+  <!-- Health plus inside heart -->
+  <rect x="244" y="270" width="24" height="70" rx="4" fill="url(#g)"/>
+  <rect x="221" y="293" width="70" height="24" rx="4" fill="url(#g)"/>
 </svg>
