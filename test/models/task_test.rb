@@ -1,6 +1,9 @@
 require "test_helper"
+require "turbo/broadcastable/test_helper"
 
 class TaskTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+  include Turbo::Broadcastable::TestHelper
   # Phase 1A: Model Validations & Associations
 
   test "task requires a name" do
@@ -162,6 +165,16 @@ class TaskTest < ActiveSupport::TestCase
 
     expected = (100 * Task::SCORE_AT_ONE_PERIOD).round
     assert_in_delta expected, task.health_score, 1
+  end
+
+  # Phase 5A: Broadcast Configuration
+
+  test "task broadcasts_refreshes is configured" do
+    assert_turbo_stream_broadcasts(:house_scores) do
+      perform_enqueued_jobs do
+        Task.create!(name: "Broadcast Test", decay_period_days: 7, room: rooms(:kitchen))
+      end
+    end
   end
 
   test "last_completed_at returns nil when no completions" do

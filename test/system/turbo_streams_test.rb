@@ -22,7 +22,6 @@ class TurboStreamsSystemTest < ApplicationSystemTestCase
 
     # After morph refresh, bathroom score updates on the main page
     assert_no_selector "dialog[open]", wait: 5
-    bathroom_link = find("a", text: "Bathroom")
-    assert_match(/100/, bathroom_link.text)
+    assert_selector "a", text: /Bathroom.*100/, wait: 5
   end
 end
