@@ -9,6 +9,10 @@ module ScoreColorHelper
     "hsl(#{hue}, 80%, 55%)"
   end
 
+  def score_gradient(score)
+    "background: linear-gradient(135deg, #{score_color(score)}, #{score_color_light(score)})"
+  end
+
   private
 
   def score_hue(score)

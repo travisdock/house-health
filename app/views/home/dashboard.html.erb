@@ -4,9 +4,33 @@
   <meta http-equiv="refresh" content="3600">
 <% end %>
 
-<div class="text-center py-12">
-  <div class="text-sm font-medium text-gray-400 uppercase tracking-wide">House Score</div>
-  <div class="text-8xl font-bold mt-2" style="color: <%= score_color(@house_score) %>">
-    <%= @house_score || "--" %>
+<% if @rooms.any? %>
+  <%# House score hero %>
+  <div class="text-center py-8">
+    <div class="inline-block rounded-2xl px-12 py-6 text-white"
+         style="<%= score_gradient(@house_score) %>;">
+      <div class="text-sm font-medium uppercase tracking-wide opacity-80">House Score</div>
+      <div class="text-8xl font-bold mt-1" data-testid="house-score">
+        <%= @house_score || "--" %>
+      </div>
+    </div>
   </div>
-</div>
+
+  <%# Room cards grid %>
+  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+    <% @rooms.each do |room| %>
+      <%= render "room_card", room: room %>
+    <% end %>
+  </div>
+<% else %>
+  <%# Empty state: inline add room form %>
+  <div class="text-center py-24">
+    <div class="text-sm font-medium text-gray-400 uppercase tracking-wide">House Score</div>
+    <div class="text-8xl font-bold mt-2 text-gray-300" data-testid="house-score">--</div>
+    <p class="text-gray-500 mt-6 mb-4">Add your first room to start tracking</p>
+    <%= render "add_room_form" %>
+  </div>
+<% end %>
+
+<%# Modal container for room tasks %>
+<turbo-frame id="modal"></turbo-frame>

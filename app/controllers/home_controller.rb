@@ -9,7 +9,7 @@ class HomeController < ApplicationController
   def load_rooms_and_score
     # Rooms with no tasks (nil score) sort first via -1 so they stay visible
     @rooms = Room.includes(tasks: :completions).sort_by { |r| r.score || -1 }
-    scores = @rooms.filter_map(&:score)
-    @house_score = scores.empty? ? nil : (scores.sum.to_f / scores.size).round
+    @house_score = Room.house_score(@rooms)
+    @room = Room.new
   end
 end
