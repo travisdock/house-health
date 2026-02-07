@@ -43,11 +43,68 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/add/i, response.body)
   end
 
-  test "GET /dashboard returns success and displays house score" do
+  # Phase 4A: Dashboard Action
+
+  test "GET /dashboard returns success" do
     get dashboard_path
     assert_response :success
-    assert_select ".text-8xl"
-    assert_match(/House Score/i, response.body)
+  end
+
+  test "GET /dashboard hides the nav bar" do
+    get dashboard_path
+    assert_response :success
+    assert_select "nav", count: 0
+  end
+
+  test "GET /dashboard displays house score and room cards" do
+    get dashboard_path
+    assert_response :success
+
+    # House score is displayed
+    assert_select "[data-testid='house-score']"
+
+    # Room names are displayed as cards
+    rooms(:kitchen, :bathroom, :bedroom).each do |room|
+      assert_match room.name, response.body
+    end
+  end
+
+  # Phase 4B: Dashboard — Room Detail Interaction
+
+  test "room card links to room tasks via turbo frame" do
+    get dashboard_path
+    assert_response :success
+
+    # Room cards should link to room tasks path with turbo frame
+    assert_select "a[data-turbo-frame='modal']"
+  end
+
+  test "room detail shows all tasks with scores and done buttons" do
+    room = rooms(:kitchen)
+    get room_tasks_path(room)
+    assert_response :success
+
+    room.tasks.each do |task|
+      assert_match task.name, response.body
+    end
+    assert_select "input[type=submit][value='Done'], button[type=submit]"
+  end
+
+  # Phase 4C: Dashboard — Empty States
+
+  test "GET /dashboard with no rooms shows add room prompt" do
+    Room.destroy_all
+    get dashboard_path
+    assert_response :success
+    assert_match(/add/i, response.body)
+  end
+
+  test "GET /dashboard with a room that has no tasks shows placeholder" do
+    get dashboard_path
+    assert_response :success
+
+    # Bedroom has no tasks, should show "--" as score placeholder
+    assert_match("--", response.body)
   end
 
   # Phase 3B: Room Task List (Mobile)
