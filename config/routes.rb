@@ -9,7 +9,14 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  root "home#index"
+  get "dashboard", to: "home#dashboard"
+
   resources :rooms, except: :show do
-    resources :tasks, except: %i[index show]
+    resources :tasks, except: %i[show]
+  end
+
+  resources :tasks, only: [] do
+    resources :completions, only: :create
   end
 end
