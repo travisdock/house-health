@@ -12,7 +12,7 @@ class RoomsController < ApplicationController
   def create
     @room = Room.new(room_params)
     if @room.save
-      redirect_to rooms_path
+      redirect_back fallback_location: rooms_path
     else
       render :new, status: :unprocessable_entity
     end

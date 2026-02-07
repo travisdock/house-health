@@ -1,0 +1,5 @@
+<%= form_with model: @room, class: "max-w-xs mx-auto flex gap-2" do |f| %>
+  <%= f.text_field :name, placeholder: "Room name", required: true,
+      class: "flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+  <%= f.submit "Add", class: "bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 cursor-pointer" %>
+<% end %>
