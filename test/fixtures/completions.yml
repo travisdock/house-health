@@ -1,0 +1,7 @@
+recent_wipe:
+  task: wipe_counters
+  created_at: <%= 1.hour.ago %>
+
+old_mop:
+  task: mop_floor
+  created_at: <%= 14.days.ago %>

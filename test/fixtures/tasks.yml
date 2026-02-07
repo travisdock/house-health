@@ -1,0 +1,14 @@
+wipe_counters:
+  name: Wipe counters
+  decay_period_days: 1
+  room: kitchen
+
+mop_floor:
+  name: Mop floor
+  decay_period_days: 7
+  room: kitchen
+
+clean_toilet:
+  name: Clean toilet
+  decay_period_days: 7
+  room: bathroom

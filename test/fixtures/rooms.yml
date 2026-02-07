@@ -1,0 +1,8 @@
+kitchen:
+  name: Kitchen
+
+bathroom:
+  name: Bathroom
+
+bedroom:
+  name: Bedroom
