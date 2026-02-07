@@ -13,6 +13,18 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "GET /rooms/new renders the form" do
+    get new_room_path
+    assert_response :success
+    assert_select "form"
+  end
+
+  test "GET /rooms/:id/edit renders the form" do
+    get edit_room_path(rooms(:kitchen))
+    assert_response :success
+    assert_select "form"
+  end
+
   test "POST /rooms creates a room with valid params" do
     assert_difference "Room.count", 1 do
       post rooms_path, params: { room: { name: "Living Room" } }
@@ -21,11 +33,27 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Living Room", Room.last.name
   end
 
+  test "POST /rooms with invalid params renders form with errors" do
+    assert_no_difference "Room.count" do
+      post rooms_path, params: { room: { name: "" } }
+    end
+    assert_response :unprocessable_entity
+    assert_select "form"
+  end
+
   test "PATCH /rooms/:id updates room attributes" do
     room = rooms(:kitchen)
     patch room_path(room), params: { room: { name: "Updated Kitchen" } }
     assert_redirected_to rooms_path
     assert_equal "Updated Kitchen", room.reload.name
+  end
+
+  test "PATCH /rooms/:id with invalid params renders form with errors" do
+    room = rooms(:kitchen)
+    patch room_path(room), params: { room: { name: "" } }
+    assert_response :unprocessable_entity
+    assert_select "form"
+    assert_equal "Kitchen", room.reload.name
   end
 
   test "DELETE /rooms/:id destroys the room and cascades" do
