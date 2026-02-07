@@ -10,28 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_140509) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_07_034037) do
   create_table "completions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "task_id", null: false
     t.datetime "updated_at", null: false
     t.index ["task_id", "created_at"], name: "index_completions_on_task_id_and_created_at"
-    t.index ["task_id"], name: "index_completions_on_task_id"
   end
 
   create_table "rooms", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "name"
+    t.string "name", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "tasks", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "decay_period_days"
-    t.string "name"
+    t.integer "decay_period_days", null: false
+    t.string "name", null: false
     t.integer "room_id", null: false
     t.datetime "updated_at", null: false
     t.index ["room_id"], name: "index_tasks_on_room_id"
+    t.check_constraint "decay_period_days >= 1", name: "tasks_decay_period_days_positive"
   end
 
   add_foreign_key "completions", "tasks"

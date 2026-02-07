@@ -4,10 +4,10 @@ class Room < ApplicationRecord
   validates :name, presence: true
 
   def self.house_score
-    scored_rooms = Room.includes(tasks: :completions).select { |r| r.score.present? }
-    return nil if scored_rooms.empty?
+    scores = includes(tasks: :completions).filter_map(&:score)
+    return nil if scores.empty?
 
-    (scored_rooms.sum(&:score).to_f / scored_rooms.size).round
+    (scores.sum.to_f / scores.size).round
   end
 
   def score
