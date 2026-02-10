@@ -36,7 +36,7 @@ class Room < ApplicationRecord
 
   def spatial_data_complete_or_absent
     fields = [ x, y, width, height ]
-    unless fields.all?(&:present?) || fields.none?(&:present?)
+    unless fields.all? { |f| !f.nil? } || fields.all?(&:nil?)
       errors.add(:base, "spatial data must be fully present or fully absent")
     end
   end

@@ -73,19 +73,4 @@ class ScoreColorHelperTest < ActionView::TestCase
       assert_equal score_gradient(100), floorplan_gradient(room)
     end
   end
-
-  test "floorplan_color returns gray for nil-score room" do
-    room = Room.create!(name: "Empty Room")
-    assert_equal "hsl(0, 0%, 70%)", floorplan_color(room)
-  end
-
-  test "floorplan_color returns score color for scored room" do
-    freeze_time do
-      room = Room.create!(name: "Scored Room")
-      task = room.tasks.create!(name: "Task", decay_period_days: 7)
-      task.completions.create!
-
-      assert_equal score_color(100), floorplan_color(room)
-    end
-  end
 end

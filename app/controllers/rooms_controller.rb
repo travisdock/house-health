@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-  before_action :set_room, only: %i[edit update destroy]
+  before_action :set_room, only: %i[edit update destroy position]
 
   def index
     @rooms = Room.includes(tasks: :completions).all
@@ -41,9 +41,10 @@ class RoomsController < ApplicationController
   end
 
   def position
-    @room = Room.find(params[:id])
     @room.assign_attributes(position_params)
     if @room.valid?
+      # update_columns intentionally bypasses callbacks to avoid
+      # Turbo broadcast storms during rapid drag operations
       @room.update_columns(position_params.to_h)
       head :ok
     else

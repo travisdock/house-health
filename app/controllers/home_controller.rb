@@ -17,10 +17,9 @@ class HomeController < ApplicationController
   private
 
   def load_floorplan_data
-    rooms = Room.includes(tasks: :completions)
-    @placed_rooms = rooms.placed
-    @unplaced_rooms = rooms.unplaced.order(:name)
-    @house_score = Room.house_score(rooms)
+    all_rooms = Room.includes(tasks: :completions).to_a
+    @placed_rooms = all_rooms.select { |r| !r.x.nil? }
+    @unplaced_rooms = all_rooms.select { |r| r.x.nil? }.sort_by(&:name)
   end
 
   def load_rooms_and_score

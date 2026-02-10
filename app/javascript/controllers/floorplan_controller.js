@@ -1,53 +1,72 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Pure coordinate conversion functions
-export function virtualToScreen(vx, vy, scale, panX, panY) {
-  return { sx: vx * scale + panX, sy: vy * scale + panY }
-}
-
-export function screenToVirtual(sx, sy, scale, panX, panY) {
-  return { vx: (sx - panX) / scale, vy: (sy - panY) / scale }
-}
-
 const VIRTUAL_SIZE = 1000
 const DEBOUNCE_MS = 500
 const MIN_ROOM_SIZE = 30
 const ZOOM_SENSITIVITY = 0.001
 const MIN_SCALE = 0.2
 const MAX_SCALE = 5
+const ZOOM_FACTOR = 1.1
+
+function screenToVirtual(sx, sy, scale, panX, panY) {
+  return { vx: (sx - panX) / scale, vy: (sy - panY) / scale }
+}
+
+function csrfToken() {
+  return document.querySelector("meta[name='csrf-token']")?.content
+}
+
+function authenticatedFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-CSRF-Token": csrfToken(),
+      ...options.headers
+    }
+  })
+}
 
 export default class extends Controller {
   static targets = ["viewport", "canvas"]
   static values = { editable: { type: Boolean, default: false } }
 
-  connect() {
+  initialize() {
     this.scale = 1
     this.panX = 0
     this.panY = 0
+  }
+
+  connect() {
     this.interaction = null
     this.saveTimers = {}
+    this.saveAbortControllers = {}
     this.drawMode = false
 
     this.fitToViewport()
     if (this.editableValue) this.addResizeHandles()
 
-    // Pointer events on the canvas (not the sidebar container)
-    this.canvasTarget.addEventListener("pointerdown", this.onPointerDown.bind(this))
-    this.canvasTarget.addEventListener("pointermove", this.onPointerMove.bind(this))
-    this.canvasTarget.addEventListener("pointerup", this.onPointerUp.bind(this))
-    this.canvasTarget.addEventListener("wheel", this.onWheel.bind(this), { passive: false })
+    // Store bound references so they can be removed in disconnect()
+    this._onPointerDown = this.onPointerDown.bind(this)
+    this._onPointerMove = this.onPointerMove.bind(this)
+    this._onPointerUp = this.onPointerUp.bind(this)
+    this._onWheel = this.onWheel.bind(this)
+    this._onDragStart = e => e.preventDefault()
 
-    // Prevent native browser drag on room links (belt-and-suspenders with draggable="false" in HTML)
-    this.viewportTarget.addEventListener("dragstart", e => e.preventDefault())
+    this.canvasTarget.addEventListener("pointerdown", this._onPointerDown)
+    this.canvasTarget.addEventListener("pointermove", this._onPointerMove)
+    this.canvasTarget.addEventListener("pointerup", this._onPointerUp)
+    this.canvasTarget.addEventListener("wheel", this._onWheel, { passive: false })
+    this.canvasTarget.addEventListener("pointercancel", this._onPointerUp)
 
-    // Clean up interaction state if pointer is lost (e.g. browser steals focus)
-    this.canvasTarget.addEventListener("pointercancel", this.onPointerUp.bind(this))
+    // Prevent native browser drag on room links
+    this.viewportTarget.addEventListener("dragstart", this._onDragStart)
 
     // Flush pending saves before navigation
     this._boundFlush = this.flushSaves.bind(this)
     document.addEventListener("turbo:before-visit", this._boundFlush)
 
-    // Re-apply viewport transform after Turbo morph (e.g. score updates, room creation broadcasts)
+    // Re-apply viewport transform after Turbo morph
     this._boundOnRender = this.onTurboRender.bind(this)
     document.addEventListener("turbo:render", this._boundOnRender)
 
@@ -57,6 +76,14 @@ export default class extends Controller {
 
   disconnect() {
     this.flushSaves()
+
+    this.canvasTarget.removeEventListener("pointerdown", this._onPointerDown)
+    this.canvasTarget.removeEventListener("pointermove", this._onPointerMove)
+    this.canvasTarget.removeEventListener("pointerup", this._onPointerUp)
+    this.canvasTarget.removeEventListener("wheel", this._onWheel)
+    this.canvasTarget.removeEventListener("pointercancel", this._onPointerUp)
+    this.viewportTarget.removeEventListener("dragstart", this._onDragStart)
+
     document.removeEventListener("turbo:before-visit", this._boundFlush)
     document.removeEventListener("turbo:render", this._boundOnRender)
   }
@@ -339,14 +366,9 @@ export default class extends Controller {
     const name = prompt("Room name:")
     if (!name) return
 
-    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
     try {
-      const response = await fetch("/rooms.json", {
+      const response = await authenticatedFetch("/rooms.json", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRF-Token": csrfToken
-        },
         body: new URLSearchParams({
           "room[name]": name,
           "room[x]": x,
@@ -417,14 +439,9 @@ export default class extends Controller {
     const x = Math.max(0, Math.min(VIRTUAL_SIZE - 150, Math.round(vx)))
     const y = Math.max(0, Math.min(VIRTUAL_SIZE - 100, Math.round(vy)))
 
-    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
     try {
-      const response = await fetch(`/rooms/${roomId}/position`, {
+      const response = await authenticatedFetch(`/rooms/${roomId}/position`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRF-Token": csrfToken
-        },
         body: new URLSearchParams({
           "room[x]": x,
           "room[y]": y,
@@ -444,9 +461,8 @@ export default class extends Controller {
 
   scheduleSave(roomEl) {
     const roomId = roomEl.dataset.roomId
-    if (this.saveTimers[roomId]) {
-      clearTimeout(this.saveTimers[roomId])
-    }
+    if (this.saveTimers[roomId]) clearTimeout(this.saveTimers[roomId])
+    if (this.saveAbortControllers[roomId]) this.saveAbortControllers[roomId].abort()
 
     this.saveTimers[roomId] = setTimeout(() => {
       this.savePosition(roomEl)
@@ -454,31 +470,37 @@ export default class extends Controller {
     }, DEBOUNCE_MS)
   }
 
-  async savePosition(roomEl) {
+  async savePosition(roomEl, { keepalive = false } = {}) {
     const roomId = roomEl.dataset.roomId
     const { x, y, width, height } = roomEl.dataset
-    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content
+
+    const controller = new AbortController()
+    this.saveAbortControllers[roomId] = controller
 
     try {
-      const response = await fetch(`/rooms/${roomId}/position`, {
+      const response = await authenticatedFetch(`/rooms/${roomId}/position`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-CSRF-Token": csrfToken
-        },
         body: new URLSearchParams({
           "room[x]": x,
           "room[y]": y,
           "room[width]": width,
           "room[height]": height
-        })
+        }),
+        keepalive,
+        signal: controller.signal
       })
 
       if (!response.ok) {
         console.error("Failed to save room position:", response.status)
       }
     } catch (e) {
-      console.error("Failed to save room position:", e)
+      if (e.name !== "AbortError") {
+        console.error("Failed to save room position:", e)
+      }
+    } finally {
+      if (this.saveAbortControllers[roomId] === controller) {
+        delete this.saveAbortControllers[roomId]
+      }
     }
   }
 
@@ -486,7 +508,7 @@ export default class extends Controller {
     for (const roomId of Object.keys(this.saveTimers)) {
       clearTimeout(this.saveTimers[roomId])
       const roomEl = this.canvasTarget.querySelector(`[data-room-id="${roomId}"]`)
-      if (roomEl) this.savePosition(roomEl)
+      if (roomEl) this.savePosition(roomEl, { keepalive: true })
     }
     this.saveTimers = {}
   }

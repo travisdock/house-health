@@ -10,7 +10,7 @@ class FloorplanSystemTest < ApplicationSystemTestCase
   end
 
   test "unplaced rooms appear in the sidebar on desktop" do
-    visit floorplan_path
+    visit floorplan_edit_path
     within("aside") do
       assert_text rooms(:kitchen).name
       assert_text rooms(:bathroom).name
@@ -18,7 +18,7 @@ class FloorplanSystemTest < ApplicationSystemTestCase
   end
 
   test "empty state shows helpful prompt when no rooms are placed" do
-    visit floorplan_path
+    visit floorplan_edit_path
     assert_text "Drag rooms from the sidebar"
   end
 
