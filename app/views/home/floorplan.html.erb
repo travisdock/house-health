@@ -36,7 +36,7 @@
        class="relative flex-1 overflow-hidden bg-gray-100"
        style="background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px); background-size: 20px 20px;">
 
-    <% if @placed_rooms.empty? && @unplaced_rooms.any? %>
+    <% if @editable && @placed_rooms.empty? && @unplaced_rooms.any? %>
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none" data-floorplan-target="emptyState">
         <p class="text-gray-400 text-lg">Drag rooms from the sidebar to place them</p>
       </div>
