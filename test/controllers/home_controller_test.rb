@@ -50,10 +50,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "GET /dashboard hides the nav bar" do
+  test "GET /dashboard renders the nav bar with auto-hide controller" do
     get dashboard_path
     assert_response :success
-    assert_select "nav", count: 0
+    assert_select "nav[data-controller='navbar']"
   end
 
   test "GET /dashboard displays house score and room cards" do

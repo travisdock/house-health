@@ -3,7 +3,7 @@
   <meta http-equiv="refresh" content="3600">
 <% end %>
 
-<div id="floorplan-container" class="flex h-[calc(100vh-3rem)]" data-controller="floorplan" data-floorplan-editable-value="<%= @editable %>">
+<div id="floorplan-container" class="flex h-screen" data-controller="floorplan" data-floorplan-editable-value="<%= @editable %>">
   <% if @editable %>
     <%# Sidebar: unplaced rooms (edit mode only) %>
     <aside class="w-64 border-r bg-white p-4 space-y-2 overflow-y-auto flex-shrink-0">

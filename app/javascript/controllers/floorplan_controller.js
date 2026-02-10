@@ -97,11 +97,12 @@ export default class extends Controller {
 
   fitToViewport() {
     const rect = this.canvasTarget.getBoundingClientRect()
+    const navbarHeight = 48
     const scaleX = rect.width / VIRTUAL_SIZE
-    const scaleY = rect.height / VIRTUAL_SIZE
+    const scaleY = (rect.height - navbarHeight) / VIRTUAL_SIZE
     this.scale = Math.min(scaleX, scaleY) * 0.9
     this.panX = (rect.width - VIRTUAL_SIZE * this.scale) / 2
-    this.panY = (rect.height - VIRTUAL_SIZE * this.scale) / 2
+    this.panY = navbarHeight + (rect.height - navbarHeight - VIRTUAL_SIZE * this.scale) / 2
     this.applyTransform()
   }
 
