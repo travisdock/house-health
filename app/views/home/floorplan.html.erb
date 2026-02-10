@@ -1,0 +1,77 @@
+<%= turbo_stream_from :house_scores %>
+<% content_for :head do %>
+  <meta http-equiv="refresh" content="3600">
+<% end %>
+
+<div id="floorplan-container" class="flex h-[calc(100vh-3rem)]" data-controller="floorplan" data-floorplan-editable-value="<%= @editable %>">
+  <% if @editable %>
+    <%# Sidebar: unplaced rooms (edit mode only) %>
+    <aside class="w-64 border-r bg-white p-4 space-y-2 overflow-y-auto flex-shrink-0">
+      <h2 class="font-bold text-gray-700 mb-3">Unplaced Rooms</h2>
+      <% if @unplaced_rooms.any? %>
+        <% @unplaced_rooms.each do |room| %>
+          <div class="p-2 bg-gray-100 rounded cursor-grab text-sm hover:bg-gray-200 transition-colors"
+               draggable="true"
+               data-room-id="<%= room.id %>"
+               data-room-name="<%= room.name %>"
+               data-action="dragstart->floorplan#sidebarDragStart">
+            <%= room.name %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-gray-400">All rooms placed</p>
+      <% end %>
+
+      <button class="mt-4 w-full py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 cursor-pointer"
+              data-action="click->floorplan#startDrawMode">
+        + New Room
+      </button>
+    </aside>
+  <% end %>
+
+  <%# Canvas area %>
+  <div id="floorplan-canvas"
+       data-floorplan-target="canvas"
+       data-action="dragover->floorplan#handleDragOver drop->floorplan#handleDrop"
+       class="relative flex-1 overflow-hidden bg-gray-100"
+       style="background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px); background-size: 20px 20px;">
+
+    <% if @placed_rooms.empty? && @unplaced_rooms.any? %>
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none" data-floorplan-target="emptyState">
+        <p class="text-gray-400 text-lg">Drag rooms from the sidebar to place them</p>
+      </div>
+    <% elsif @placed_rooms.empty? && @unplaced_rooms.empty? %>
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <p class="text-gray-400 text-lg">Create rooms from the <a href="<%= rooms_path %>" class="underline pointer-events-auto">Rooms page</a> first</p>
+      </div>
+    <% end %>
+
+    <%# Viewport wrapper for pan/zoom transform %>
+    <div id="floorplan-viewport" data-floorplan-target="viewport" class="absolute inset-0 origin-top-left">
+      <div class="absolute border-2 border-dashed border-red-300 rounded pointer-events-none" style="left: 0; top: 0; width: 1000px; height: 1000px;"></div>
+      <% unless @editable %>
+        <%= link_to "Edit", floorplan_edit_path,
+            class: "absolute px-3 py-1 bg-white border rounded shadow text-sm hover:bg-gray-50",
+            style: "top: 8px; left: #{1000 - 60}px;" %>
+      <% end %>
+      <% @placed_rooms.each do |room| %>
+        <%= link_to room_tasks_path(room),
+            draggable: false,
+            data: { turbo_frame: "modal",
+                    room_id: room.id,
+                    x: room.x, y: room.y,
+                    width: room.width, height: room.height },
+            class: "floorplan-room absolute rounded-lg shadow-md
+                   flex flex-col items-center justify-center text-white font-bold
+                   select-none overflow-hidden hover:shadow-lg transition-shadow",
+            style: "#{floorplan_gradient(room)}; left: #{room.x}px; top: #{room.y}px; width: #{room.width}px; height: #{room.height}px;" do %>
+          <span class="truncate px-2 text-sm"><%= room.name %></span>
+          <span class="text-xs opacity-75"><%= room.score || "--" %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# Modal container for room tasks %>
+<turbo-frame id="modal"></turbo-frame>

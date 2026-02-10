@@ -193,4 +193,70 @@ class RoomTest < ActiveSupport::TestCase
 
     assert_equal 100, Room.house_score
   end
+
+  # Floorplan: Spatial Data
+
+  test "room with full spatial data is valid" do
+    room = Room.new(name: "Kitchen", x: 100, y: 200, width: 300, height: 150)
+    assert room.valid?
+  end
+
+  test "room without spatial data is valid" do
+    room = Room.new(name: "Kitchen")
+    assert room.valid?
+  end
+
+  test "room with partial spatial data is invalid" do
+    room = Room.new(name: "Kitchen", x: 100, y: 200)
+    assert_not room.valid?
+    assert_includes room.errors[:base], "spatial data must be fully present or fully absent"
+  end
+
+  test "room with x only is invalid" do
+    room = Room.new(name: "Kitchen", x: 100)
+    assert_not room.valid?
+  end
+
+  test "room with negative width is invalid" do
+    room = Room.new(name: "Kitchen", x: 100, y: 200, width: -50, height: 150)
+    assert_not room.valid?
+  end
+
+  test "room with zero width is invalid" do
+    room = Room.new(name: "Kitchen", x: 100, y: 200, width: 0, height: 150)
+    assert_not room.valid?
+  end
+
+  test "room with x greater than 1000 is invalid" do
+    room = Room.new(name: "Kitchen", x: 1001, y: 200, width: 300, height: 150)
+    assert_not room.valid?
+  end
+
+  test "room with x at boundary 1000 is valid" do
+    room = Room.new(name: "Kitchen", x: 1000, y: 0, width: 1, height: 1)
+    assert room.valid?
+  end
+
+  test "room with width greater than 1000 is invalid" do
+    room = Room.new(name: "Kitchen", x: 0, y: 0, width: 1001, height: 100)
+    assert_not room.valid?
+  end
+
+  # Floorplan: Scopes
+
+  test "placed scope returns rooms with spatial data" do
+    Room.destroy_all
+    Room.create!(name: "Placed", x: 100, y: 200, width: 300, height: 150)
+    Room.create!(name: "Unplaced")
+
+    assert_equal [ "Placed" ], Room.placed.pluck(:name)
+  end
+
+  test "unplaced scope returns rooms without spatial data" do
+    Room.destroy_all
+    Room.create!(name: "Placed", x: 100, y: 200, width: 300, height: 150)
+    Room.create!(name: "Unplaced")
+
+    assert_equal [ "Unplaced" ], Room.unplaced.pluck(:name)
+  end
 end

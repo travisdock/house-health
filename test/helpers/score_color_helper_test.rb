@@ -56,4 +56,36 @@ class ScoreColorHelperTest < ActionView::TestCase
   test "light: score above 100 is clamped" do
     assert_equal "hsl(140, 80%, 55%)", score_color_light(150)
   end
+
+  # Floorplan helpers
+
+  test "floorplan_gradient returns gray for nil-score room" do
+    room = Room.create!(name: "Empty Room")
+    assert_equal "background: hsl(0, 0%, 80%)", floorplan_gradient(room)
+  end
+
+  test "floorplan_gradient returns score gradient for scored room" do
+    freeze_time do
+      room = Room.create!(name: "Scored Room")
+      task = room.tasks.create!(name: "Task", decay_period_days: 7)
+      task.completions.create!
+
+      assert_equal score_gradient(100), floorplan_gradient(room)
+    end
+  end
+
+  test "floorplan_color returns gray for nil-score room" do
+    room = Room.create!(name: "Empty Room")
+    assert_equal "hsl(0, 0%, 70%)", floorplan_color(room)
+  end
+
+  test "floorplan_color returns score color for scored room" do
+    freeze_time do
+      room = Room.create!(name: "Scored Room")
+      task = room.tasks.create!(name: "Task", decay_period_days: 7)
+      task.completions.create!
+
+      assert_equal score_color(100), floorplan_color(room)
+    end
+  end
 end
