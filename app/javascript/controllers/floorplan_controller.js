@@ -129,8 +129,9 @@ export default class extends Controller {
   // --- Pointer Events ---
 
   onPointerDown(event) {
-    // Let non-room links (e.g. Edit button) pass through to the browser
+    // Let non-room links (e.g. Edit button) and buttons (e.g. zoom) pass through
     if (event.target.closest("a:not(.floorplan-room)")) return
+    if (event.target.closest("button")) return
 
     const resizeHandle = event.target.closest(".resize-handle")
     const roomEl = event.target.closest(".floorplan-room[data-room-id]")
@@ -212,6 +213,28 @@ export default class extends Controller {
     // Zoom centered on cursor
     this.panX = mouseX - (mouseX - this.panX) * (this.scale / oldScale)
     this.panY = mouseY - (mouseY - this.panY) * (this.scale / oldScale)
+
+    this.applyTransform()
+  }
+
+  zoomIn() {
+    this.zoomByFactor(ZOOM_FACTOR)
+  }
+
+  zoomOut() {
+    this.zoomByFactor(1 / ZOOM_FACTOR)
+  }
+
+  zoomByFactor(factor) {
+    const rect = this.canvasTarget.getBoundingClientRect()
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+
+    const oldScale = this.scale
+    this.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, this.scale * factor))
+
+    this.panX = centerX - (centerX - this.panX) * (this.scale / oldScale)
+    this.panY = centerY - (centerY - this.panY) * (this.scale / oldScale)
 
     this.applyTransform()
   }

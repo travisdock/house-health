@@ -46,6 +46,14 @@
       </div>
     <% end %>
 
+    <%# Zoom controls %>
+    <div class="absolute bottom-4 left-4 flex flex-col gap-1 z-10">
+      <button data-action="click->floorplan#zoomIn"
+              class="w-10 h-10 bg-white border border-gray-300 rounded-lg shadow text-xl font-bold text-gray-700 hover:bg-gray-50 active:bg-gray-100 cursor-pointer">+</button>
+      <button data-action="click->floorplan#zoomOut"
+              class="w-10 h-10 bg-white border border-gray-300 rounded-lg shadow text-xl font-bold text-gray-700 hover:bg-gray-50 active:bg-gray-100 cursor-pointer">&minus;</button>
+    </div>
+
     <%# Viewport wrapper for pan/zoom transform %>
     <div id="floorplan-viewport" data-floorplan-target="viewport" class="absolute inset-0 origin-top-left">
       <div class="absolute border-2 border-dashed border-red-300 rounded pointer-events-none" style="left: 0; top: 0; width: 1000px; height: 1000px;"></div>
