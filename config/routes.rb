@@ -11,8 +11,13 @@ Rails.application.routes.draw do
 
   root "home#index"
   get "dashboard", to: "home#dashboard"
+  get "floorplan", to: "home#floorplan"
+  get "floorplan/edit", to: "home#floorplan_edit"
 
   resources :rooms, except: :show do
+    member do
+      patch :position
+    end
     resources :tasks, except: %i[show]
   end
 

@@ -138,4 +138,80 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/add/i, response.body)
   end
+
+  # Floorplan
+
+  test "GET /floorplan returns success" do
+    get floorplan_path
+    assert_response :success
+  end
+
+  test "GET /floorplan shows the nav bar" do
+    get floorplan_path
+    assert_response :success
+    assert_select "nav", count: 1
+  end
+
+  test "GET /floorplan renders floorplan canvas container" do
+    get floorplan_path
+    assert_response :success
+    assert_select "#floorplan-canvas"
+  end
+
+  test "GET /floorplan shows placed rooms" do
+    room = rooms(:kitchen)
+    room.update!(x: 100, y: 200, width: 300, height: 150)
+
+    get floorplan_path
+    assert_response :success
+    assert_match room.name, response.body
+    assert_select ".floorplan-room"
+  end
+
+  test "GET /floorplan does not show sidebar" do
+    get floorplan_path
+    assert_response :success
+    assert_select "aside", count: 0
+  end
+
+  test "GET /floorplan shows Edit link" do
+    get floorplan_path
+    assert_response :success
+    assert_select "a[href='#{floorplan_edit_path}']", text: "Edit"
+  end
+
+  test "GET /floorplan subscribes to house_scores turbo stream" do
+    get floorplan_path
+    assert_response :success
+    signed_stream = Turbo::StreamsChannel.signed_stream_name(:house_scores)
+    assert_match signed_stream, response.body
+  end
+
+  # Floorplan Edit
+
+  test "GET /floorplan/edit returns success" do
+    get floorplan_edit_path
+    assert_response :success
+  end
+
+  test "GET /floorplan/edit shows sidebar with unplaced rooms" do
+    get floorplan_edit_path
+    assert_response :success
+    assert_select "aside"
+    rooms(:kitchen, :bathroom, :bedroom).each do |room|
+      assert_match room.name, response.body
+    end
+  end
+
+  test "GET /floorplan/edit shows canvas" do
+    get floorplan_edit_path
+    assert_response :success
+    assert_select "#floorplan-canvas"
+  end
+
+  test "GET /floorplan/edit does not show Edit link" do
+    get floorplan_edit_path
+    assert_response :success
+    assert_select "a[href='#{floorplan_edit_path}']", count: 0
+  end
 end

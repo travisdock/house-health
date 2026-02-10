@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-  before_action :set_room, only: %i[edit update destroy]
+  before_action :set_room, only: %i[edit update destroy position]
 
   def index
     @rooms = Room.includes(tasks: :completions).all
@@ -12,9 +12,15 @@ class RoomsController < ApplicationController
   def create
     @room = Room.new(room_params)
     if @room.save
-      redirect_back fallback_location: rooms_path
+      respond_to do |format|
+        format.html { redirect_back fallback_location: rooms_path }
+        format.json { render json: @room.as_json(only: %i[id name x y width height]), status: :created }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @room.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -34,6 +40,18 @@ class RoomsController < ApplicationController
     redirect_to rooms_path
   end
 
+  def position
+    @room.assign_attributes(position_params)
+    if @room.valid?
+      # update_columns intentionally bypasses callbacks to avoid
+      # Turbo broadcast storms during rapid drag operations
+      @room.update_columns(position_params.to_h)
+      head :ok
+    else
+      head :unprocessable_entity
+    end
+  end
+
   private
 
   def set_room
@@ -41,6 +59,10 @@ class RoomsController < ApplicationController
   end
 
   def room_params
-    params.expect(room: [ :name ])
+    params.expect(room: [ :name, :x, :y, :width, :height ])
+  end
+
+  def position_params
+    params.expect(room: [ :x, :y, :width, :height ])
   end
 end

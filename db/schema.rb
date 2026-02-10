@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_07_034037) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_10_231120) do
   create_table "completions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "task_id", null: false
@@ -20,8 +20,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_07_034037) do
 
   create_table "rooms", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "height"
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.integer "width"
+    t.integer "x"
+    t.integer "y"
+    t.index ["x"], name: "index_rooms_on_x"
+    t.check_constraint "height > 0 AND height <= 1000", name: "rooms_height_range"
+    t.check_constraint "width > 0 AND width <= 1000", name: "rooms_width_range"
+    t.check_constraint "x >= 0 AND x <= 1000", name: "rooms_x_range"
+    t.check_constraint "y >= 0 AND y <= 1000", name: "rooms_y_range"
   end
 
   create_table "tasks", force: :cascade do |t|

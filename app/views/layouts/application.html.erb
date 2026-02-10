@@ -26,8 +26,14 @@
   <body class="bg-gray-50 text-gray-900">
     <%= render "shared/navbar" unless action_name == "dashboard" %>
 
-    <main class="container mx-auto px-5 py-8">
-      <%= yield %>
-    </main>
+    <% if action_name.in?(%w[floorplan floorplan_edit]) %>
+      <main>
+        <%= yield %>
+      </main>
+    <% else %>
+      <main class="container mx-auto px-5 py-8">
+        <%= yield %>
+      </main>
+    <% end %>
   </body>
 </html>

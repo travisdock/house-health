@@ -13,6 +13,10 @@ module ScoreColorHelper
     "background: linear-gradient(135deg, #{score_color(score)}, #{score_color_light(score)})"
   end
 
+  def floorplan_gradient(room)
+    room.score.nil? ? "background: hsl(0, 0%, 80%)" : score_gradient(room.score)
+  end
+
   private
 
   def score_hue(score)

@@ -56,6 +56,54 @@ class RoomsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Kitchen", room.reload.name
   end
 
+  # Floorplan: Position endpoint
+
+  test "PATCH /rooms/:id/position saves spatial data" do
+    room = rooms(:kitchen)
+    patch position_room_path(room), params: { room: { x: 100, y: 200, width: 300, height: 150 } }
+    assert_response :ok
+
+    room.reload
+    assert_equal 100, room.x
+    assert_equal 200, room.y
+    assert_equal 300, room.width
+    assert_equal 150, room.height
+  end
+
+  test "PATCH /rooms/:id/position with invalid data returns 422" do
+    room = rooms(:kitchen)
+    patch position_room_path(room), params: { room: { x: 100, y: 200, width: -50, height: 150 } }
+    assert_response :unprocessable_entity
+  end
+
+  test "PATCH /rooms/:id/position does not affect room name" do
+    room = rooms(:kitchen)
+    original_name = room.name
+    patch position_room_path(room), params: { room: { x: 100, y: 200, width: 300, height: 150 } }
+    assert_response :ok
+    assert_equal original_name, room.reload.name
+  end
+
+  test "existing PATCH /rooms/:id update is unaffected by position endpoint" do
+    room = rooms(:kitchen)
+    patch room_path(room), params: { room: { name: "Updated Kitchen" } }
+    assert_redirected_to rooms_path
+    assert_equal "Updated Kitchen", room.reload.name
+    assert_nil room.x
+  end
+
+  test "POST /rooms with spatial params creates a placed room" do
+    assert_difference "Room.count", 1 do
+      post rooms_path, params: { room: { name: "New Room", x: 100, y: 200, width: 150, height: 100 } }
+    end
+    room = Room.last
+    assert_equal "New Room", room.name
+    assert_equal 100, room.x
+    assert_equal 200, room.y
+    assert_equal 150, room.width
+    assert_equal 100, room.height
+  end
+
   test "DELETE /rooms/:id destroys the room and cascades" do
     room = rooms(:kitchen)
     task_count = room.tasks.count
