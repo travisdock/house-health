@@ -24,14 +24,14 @@
   </head>
 
   <body class="bg-gray-50 text-gray-900">
-    <%= render "shared/navbar" unless action_name == "dashboard" %>
+    <%= render "shared/navbar" %>
 
     <% if action_name.in?(%w[floorplan floorplan_edit]) %>
       <main>
         <%= yield %>
       </main>
     <% else %>
-      <main class="container mx-auto px-5 py-8">
+      <main class="container mx-auto px-5 py-8 pt-12">
         <%= yield %>
       </main>
     <% end %>

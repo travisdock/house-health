@@ -48,7 +48,8 @@
         <div class="text-center py-8">
           <p class="text-gray-500 mb-4">No tasks in this room yet</p>
           <%= link_to "Add your first task", new_room_task_path(@room),
-              class: "text-blue-600 font-medium hover:underline" %>
+              class: "text-blue-600 font-medium hover:underline",
+              data: { turbo_frame: "_top" } %>
         </div>
       <% end %>
     </div>
